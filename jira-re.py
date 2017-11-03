@@ -33,6 +33,7 @@ status_count = Counter(remaining_statuses)
 status_string = ', '.join([k+': '+str(v) for k,v in status_count.items()])
 
 print 'Date: %s' % str(date.today())
+print 'Planning Date: %s' % PLAN_DATE
 print 'Current Release: %s' % CURRENT_RELEASE
 print 'Total items in release:\t\t\t\t\t %s'  % len(total_items_in_release)
 print
