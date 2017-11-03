@@ -3,11 +3,18 @@
 from jira import JIRA
 from datetime import date
 from collections import Counter
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-r', '--release', action='store', dest='release')
+args = parser.parse_args()
+
 
 USER = '<your_jira_user>'
 PASS = '<your_jira_password>'
 PLAN_DATE='2017-10-03'
-CURRENT_RELEASE = 'RE-2017.11'
+CURRENT_RELEASE = args.release if args.release else 'RE-2017.11'
 
 jira = JIRA('https://rpc-openstack.atlassian.net', basic_auth=(USER,PASS))
 
