@@ -21,6 +21,12 @@ PROJECT = args.project if args.project else 'RE'
 
 jira = JIRA('https://rpc-openstack.atlassian.net', basic_auth=(USER,PASS))
 
+# check if fixversion actually exists
+fixversions = [version.name for version in jira.project_versions(PROJECT)]
+if CURRENT_RELEASE not in fixversions:
+    print 'Warning: Release %s was not found' % CURRENT_RELEASE
+    exit(1)
+
 initial_items = jira.search_issues('fixVersion = %s and created <= 2017-10-03 and type in (bug,task)' % CURRENT_RELEASE)
 addl_items = jira.search_issues('fixVersion = %s and created > 2017-10-03 and type in (bug,task)' % CURRENT_RELEASE)
 total_items_in_release = initial_items + addl_items
