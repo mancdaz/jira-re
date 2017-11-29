@@ -11,6 +11,7 @@ parser.add_argument('-r', '--release', action='store', dest='release')
 parser.add_argument('-pd', '--plan-date', action='store', dest='plan')
 parser.add_argument('-p', '--project', action='store', dest='project')
 parser.add_argument('-d', '--debug', action='store_true', dest='debug')
+parser.add_argument('-ppp', action='store_true', dest='ppp')
 
 args = parser.parse_args()
 
@@ -66,34 +67,51 @@ remaining_items = jira.search_issues(
     'fixVersion = %s and type in (bug,task) and status != Finished'
     % CURRENT_RELEASE)
 non_release_items = jira.search_issues(
-    '((labels in (re-related)) OR '
-    '(Project = RE and fixVersion != %s)) '
-    'AND resolved >= %s '
-    'and Status in (Finished, Done) ORDER BY created ASC' \
-    % (CURRENT_RELEASE, PLAN_DATE))
+    '((Project = %s AND (fixVersion != %s OR fixVersion = null) ) '
+    'OR (labels = re-related)) '
+    'AND type in (bug, task, sub-task) '
+    'AND resolutiondate >= %s '
+    'AND StatusCategory = Done '
+    'ORDER BY resolved ASC'
+    % (PROJECT, CURRENT_RELEASE, PLAN_DATE))
 
 remaining_statuses = [a.fields.status.name for a in remaining_items]
 status_count = Counter(remaining_statuses)
+backlog = status_count['Backlog']
+remaining = sum(status_count.values()) - backlog
 status_string = ', '.join([k + ': ' + str(v) for k, v in status_count.items()])
 
-print 'Date: %s' % str(date.today())
-print 'Planning Date: %s' % PLAN_DATE
-print 'Current Release: %s' % CURRENT_RELEASE
-print 'Total items in release:\t\t\t\t %s' % len(total_items_in_release)
-print
-print 'Initial release items in planning:\t\t %s' % len(initial_items)
-if DEBUG: print_issues_summary(initial_items)
-print 'Additional release items since planning:\t %s' % len(addl_items)
-if DEBUG: print_issues_summary(addl_items)
-print
-print 'Completed release items:\t\t\t %s' % len(completed_items)
-if DEBUG: print_issues_summary(completed_items)
-print 'Remaining release items:\t\t\t %s (%s)' \
-    % (len(remaining_items), status_string)
-if DEBUG: print_issues_summary(remaining_items)
-print
-print 'Completed non-release items:\t\t\t %s' % len(non_release_items)
-if DEBUG: print_issues_summary(non_release_items)
-print
-print 'Total items completed in release period:\t %s' \
-    % (len(completed_items) + len(non_release_items))
+if args.ppp:
+
+    '''
+    - Release RE-2017-12 (ends 2017-12-01)
+      - 34 total issues, 26 done, 4 in progress, 4 in backlog
+      - 24 additional non-release items completed (re-related or non-release themed bugs)
+    '''
+
+    print('- Release %s' % CURRENT_RELEASE)
+    print('  - %s total issues, %s completed, %s in progress, %s backlog'  % ( len(total_items_in_release), len(completed_items), remaining, backlog))
+    print('  - %s additional non-release items completed (re-related or non-release themed bugs)' % len(non_release_items))
+
+else:
+    print 'Date: %s' % str(date.today())
+    print 'Planning Date: %s' % PLAN_DATE
+    print 'Current Release: %s' % CURRENT_RELEASE
+    print 'Total items in release:\t\t\t\t %s' % len(total_items_in_release)
+    print
+    print 'Initial release items in planning:\t\t %s' % len(initial_items)
+    if DEBUG: print_issues_summary(initial_items)
+    print 'Additional release items since planning:\t %s' % len(addl_items)
+    if DEBUG: print_issues_summary(addl_items)
+    print
+    print 'Completed release items:\t\t\t %s' % len(completed_items)
+    if DEBUG: print_issues_summary(completed_items)
+    print 'Remaining release items:\t\t\t %s (%s)' \
+        % (len(remaining_items), status_string)
+    if DEBUG: print_issues_summary(remaining_items)
+    print
+    print 'Completed non-release items:\t\t\t %s' % len(non_release_items)
+    if DEBUG: print_issues_summary(non_release_items)
+    print
+    print 'Total items completed in release period:\t %s' \
+        % (len(completed_items) + len(non_release_items))
