@@ -33,7 +33,10 @@ def check_fixversion_exists(project, fixversion):
 
 
 def print_issue_summary(issue):
-    print issue.key + '\t: ' + issue.fields.summary
+    print issue.fields.issuetype.name \
+        + '\t' + issue.fields.status.name \
+        + '\t' + issue.key \
+        + '\t: ' + issue.fields.summary
 
 
 def print_issues_summary(issues):
@@ -63,9 +66,11 @@ remaining_items = jira.search_issues(
     'fixVersion = %s and type in (bug,task) and status != Finished'
     % CURRENT_RELEASE)
 non_release_items = jira.search_issues(
-    'labels in (re-related) AND resolved >= %s '
-    'and Status in (Finished, Done) ORDER BY created ASC'
-    % PLAN_DATE)
+    '((labels in (re-related)) OR '
+    '(Project = RE and fixVersion != %s)) '
+    'AND resolved >= %s '
+    'and Status in (Finished, Done) ORDER BY created ASC' \
+    % (CURRENT_RELEASE, PLAN_DATE))
 
 remaining_statuses = [a.fields.status.name for a in remaining_items]
 status_count = Counter(remaining_statuses)
