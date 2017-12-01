@@ -4,6 +4,7 @@ from jira import JIRA
 from datetime import date
 from collections import Counter
 import argparse
+import os
 
 
 parser = argparse.ArgumentParser()
@@ -12,14 +13,16 @@ parser.add_argument('-pd', '--plan-date', action='store', dest='plan')
 parser.add_argument('-p', '--project', action='store', dest='project')
 parser.add_argument('-d', '--debug', action='store_true', dest='debug')
 parser.add_argument('-ppp', action='store_true', dest='ppp')
+parser.add_argument('--user', default=os.environ.get('JIRA_USER', None))
+parser.add_argument('--passwd', default=os.environ.get('JIRA_PASS', None))
 
 args = parser.parse_args()
 
 
-USER = '<your_jira_user>'
-PASS = '<your_jira_password>'
-PLAN_DATE = args.plan if args.plan else '2017-11-01'
-CURRENT_RELEASE = args.release if args.release else 'RE-2017.12'
+USER = args.user
+PASS = args.passwd
+PLAN_DATE = args.plan if args.plan else '2017-12-01'
+CURRENT_RELEASE = args.release if args.release else 'RE-2018.01'
 PROJECT = args.project if args.project else 'RE'
 DEBUG = args.debug
 
@@ -97,7 +100,7 @@ else:
     print 'Date: %s' % str(date.today())
     print 'Planning Date: %s' % PLAN_DATE
     print 'Current Release: %s' % CURRENT_RELEASE
-    print 'Total items in release:\t\t\t\t %s' % len(total_items_in_release)
+    print 'Total (non-epic) items in release:\t\t %s' % len(total_items_in_release)
     print
     print 'Initial release items in planning:\t\t %s' % len(initial_items)
     if DEBUG: print_issues_summary(initial_items)
