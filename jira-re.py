@@ -85,22 +85,22 @@ remaining = sum(status_count.values()) - backlog
 status_string = ', '.join([k + ': ' + str(v) for k, v in status_count.items()])
 
 if args.ppp:
-
-    '''
-    - Release RE-2017-12 (ends 2017-12-01)
-      - 34 total issues, 26 done, 4 in progress, 4 in backlog
-      - 24 additional non-release items completed (re-related or non-release themed bugs)
-    '''
-
     print('- Release %s' % CURRENT_RELEASE)
-    print('  - %s total issues, %s completed, %s in progress, %s backlog'  % ( len(total_items_in_release), len(completed_items), remaining, backlog))
-    print('  - %s additional non-release items completed (re-related or non-release themed bugs)' % len(non_release_items))
+    print('  - %s total issues, %s completed, %s in progress, %s backlog'
+          % (len(total_items_in_release),
+             len(completed_items),
+             remaining,
+             backlog))
+    print('  - %s additional non-release items completed '
+          '(re-related or non-release themed bugs)'
+          % len(non_release_items))
 
 else:
     print 'Date: %s' % str(date.today())
     print 'Planning Date: %s' % PLAN_DATE
     print 'Current Release: %s' % CURRENT_RELEASE
-    print 'Total (non-epic) items in release:\t\t %s' % len(total_items_in_release)
+    print 'Total (non-epic) items in release:\t\t %s' \
+          % len(total_items_in_release)
     print
     print 'Initial release items in planning:\t\t %s' % len(initial_items)
     if DEBUG: print_issues_summary(initial_items)
