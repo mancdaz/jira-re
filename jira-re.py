@@ -9,6 +9,7 @@ import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--release', action='store', dest='release')
+parser.add_argument('-i', '--issue', action='store', dest='issue')
 parser.add_argument('-pd', '--plan-date', action='store', dest='plan')
 parser.add_argument('-p', '--project', action='store', dest='project')
 parser.add_argument('-d', '--debug', action='store_true', dest='debug')
@@ -21,8 +22,8 @@ args = parser.parse_args()
 
 USER = args.user
 PASS = args.passwd
-PLAN_DATE = args.plan if args.plan else '2017-12-01'
-CURRENT_RELEASE = args.release if args.release else 'RE-2018.01'
+PLAN_DATE = args.plan if args.plan else '2018-06-01'
+CURRENT_RELEASE = args.release if args.release else 'RE-2018.07'
 PROJECT = args.project if args.project else 'RE'
 DEBUG = args.debug
 
@@ -48,9 +49,17 @@ def print_issues_summary(issues):
         print_issue_summary(issue)
     print
 
+def open_issue(issue):
+    import webbrowser
+    webbrowser.open('https://rpc-openstack.atlassian.net/browse/%s' % issue)
+    exit(0)
 
 # main
 jira = JIRA('https://rpc-openstack.atlassian.net', basic_auth=(USER, PASS))
+
+if args.issue:
+    open_issue(args.issue)
+
 print 'Querying project %s for issues in release %s...' \
     % (PROJECT, CURRENT_RELEASE)
 
@@ -94,6 +103,7 @@ if args.ppp:
     print('  - %s additional non-release items completed '
           '(re-related or non-release themed bugs)'
           % len(non_release_items))
+
 
 else:
     print 'Date: %s' % str(date.today())
