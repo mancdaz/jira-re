@@ -103,6 +103,8 @@ if args.ppp:
     print('  - %s additional non-release items completed '
           '(re-related or non-release themed bugs)'
           % len(non_release_items))
+    import webbrowser
+    webbrowser.open('https://rpc-openstack.atlassian.net/issues/?filter=14161')
 
 
 else:
