@@ -5,7 +5,7 @@ from datetime import date
 from collections import Counter
 import argparse
 import os
-
+import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--release', action='store', dest='release')
@@ -17,18 +17,32 @@ parser.add_argument('-ppp', action='store_true', dest='ppp')
 parser.add_argument('--user', default=os.environ.get('JIRA_USER', None))
 parser.add_argument('--passwd', default=os.environ.get('JIRA_PASS', None))
 
-args = parser.parse_args()
+
+def get_date():
+    now = datetime.datetime.now()
+    month = str(now.month).zfill(2)
+    year = str(now.year)
+    day = str(now.day).zfill(2)
+    return day, month, year
 
 
-USER = args.user
-PASS = args.passwd
-PLAN_DATE = args.plan if args.plan else '2018-06-01'
-CURRENT_RELEASE = args.release if args.release else 'RE-2018.07'
-PROJECT = args.project if args.project else 'RE'
-DEBUG = args.debug
+def get_release():
+    if args.release:
+        return args.release
+    else:
+        day, month, year = get_date()
+        month = str(int(month) + 1).zfill(2)
+        return 'RE-%s.%s' % (year, month)
 
 
-# check if fixversion actually exists
+def get_plan_date():
+    if args.plan:
+        return args.plan
+    else:
+        day, month, year = get_date()
+        return '%s-%s-%s' % (year, month, '01')
+
+
 def check_fixversion_exists(project, fixversion):
     fixversions = [version.name for version in jira.project_versions(project)]
     if fixversion not in fixversions:
@@ -72,6 +86,7 @@ def ppp_report():
           % len(non_release_items))
     open_link('https://rpc-openstack.atlassian.net/issues/?filter=14161')
 
+
 def normal_report():
     print 'Date: %s' % str(date.today())
     print 'Planning Date: %s' % PLAN_DATE
@@ -99,6 +114,15 @@ def normal_report():
 ######################
 #        main        #
 ######################
+
+args = parser.parse_args()
+
+USER = args.user
+PASS = args.passwd
+PLAN_DATE = get_plan_date()
+CURRENT_RELEASE = get_release()
+PROJECT = args.project if args.project else 'RE'
+DEBUG = args.debug
 
 jira = JIRA('https://rpc-openstack.atlassian.net', basic_auth=(USER, PASS))
 
