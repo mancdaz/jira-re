@@ -49,16 +49,62 @@ def print_issues_summary(issues):
         print_issue_summary(issue)
     print
 
-def open_issue(issue):
-    import webbrowser
-    webbrowser.open('https://rpc-openstack.atlassian.net/browse/%s' % issue)
-    exit(0)
 
-# main
+def open_link(link):
+    import webbrowser
+    webbrowser.open(link)
+
+
+def open_issue(issue):
+    link = 'https://rpc-openstack.atlassian.net/browse/%s' % issue
+    open_link(link)
+
+
+def ppp_report():
+    print('- Release %s' % CURRENT_RELEASE)
+    print('  - %s total issues, %s completed, %s in progress, %s backlog'
+          % (len(total_items_in_release),
+             len(completed_items),
+             remaining,
+             backlog))
+    print('  - %s additional non-release items completed '
+          '(re-related or non-release themed bugs)'
+          % len(non_release_items))
+    open_link('https://rpc-openstack.atlassian.net/issues/?filter=14161')
+
+def normal_report():
+    print 'Date: %s' % str(date.today())
+    print 'Planning Date: %s' % PLAN_DATE
+    print 'Current Release: %s' % CURRENT_RELEASE
+    print 'Total (non-epic) items in release:\t\t %s' \
+          % len(total_items_in_release)
+    print
+    print 'Initial release items in planning:\t\t %s' % len(initial_items)
+    if DEBUG: print_issues_summary(initial_items)
+    print 'Additional release items since planning:\t %s' % len(addl_items)
+    if DEBUG: print_issues_summary(addl_items)
+    print
+    print 'Completed release items:\t\t\t %s' % len(completed_items)
+    if DEBUG: print_issues_summary(completed_items)
+    print 'Remaining release items:\t\t\t %s (%s)' \
+        % (len(remaining_items), status_string)
+    if DEBUG: print_issues_summary(remaining_items)
+    print
+    print 'Completed non-release items:\t\t\t %s' % len(non_release_items)
+    if DEBUG: print_issues_summary(non_release_items)
+    print
+    print 'Total items completed in release period:\t %s' \
+        % (len(completed_items) + len(non_release_items))
+
+######################
+#        main        #
+######################
+
 jira = JIRA('https://rpc-openstack.atlassian.net', basic_auth=(USER, PASS))
 
 if args.issue:
     open_issue(args.issue)
+    exit(0)
 
 print 'Querying project %s for issues in release %s...' \
     % (PROJECT, CURRENT_RELEASE)
@@ -94,39 +140,7 @@ remaining = sum(status_count.values()) - backlog
 status_string = ', '.join([k + ': ' + str(v) for k, v in status_count.items()])
 
 if args.ppp:
-    print('- Release %s' % CURRENT_RELEASE)
-    print('  - %s total issues, %s completed, %s in progress, %s backlog'
-          % (len(total_items_in_release),
-             len(completed_items),
-             remaining,
-             backlog))
-    print('  - %s additional non-release items completed '
-          '(re-related or non-release themed bugs)'
-          % len(non_release_items))
-    import webbrowser
-    webbrowser.open('https://rpc-openstack.atlassian.net/issues/?filter=14161')
-
+    ppp_report()
 
 else:
-    print 'Date: %s' % str(date.today())
-    print 'Planning Date: %s' % PLAN_DATE
-    print 'Current Release: %s' % CURRENT_RELEASE
-    print 'Total (non-epic) items in release:\t\t %s' \
-          % len(total_items_in_release)
-    print
-    print 'Initial release items in planning:\t\t %s' % len(initial_items)
-    if DEBUG: print_issues_summary(initial_items)
-    print 'Additional release items since planning:\t %s' % len(addl_items)
-    if DEBUG: print_issues_summary(addl_items)
-    print
-    print 'Completed release items:\t\t\t %s' % len(completed_items)
-    if DEBUG: print_issues_summary(completed_items)
-    print 'Remaining release items:\t\t\t %s (%s)' \
-        % (len(remaining_items), status_string)
-    if DEBUG: print_issues_summary(remaining_items)
-    print
-    print 'Completed non-release items:\t\t\t %s' % len(non_release_items)
-    if DEBUG: print_issues_summary(non_release_items)
-    print
-    print 'Total items completed in release period:\t %s' \
-        % (len(completed_items) + len(non_release_items))
+    normal_report()
