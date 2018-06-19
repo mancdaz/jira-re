@@ -60,10 +60,33 @@ def print_issue_summary(issue):
     print(summary)
 
 
+# def print_issues_summary(issues):
+#     for issue in issues:
+#         print_issue_summary(issue)
+#     print
+
 def print_issues_summary(issues):
+    from prettytable import PrettyTable
+    t = PrettyTable(['Type', 'Status', 'Key', 'Description'])
+    t.align = 'l'
+
     for issue in issues:
-        print_issue_summary(issue)
-    print
+        if issue.fields.status.name == 'Needs Review (doing)':
+            status = 'Review'
+        else:
+            status = issue.fields.status.name
+
+        if len(issue.fields.summary) > 55:
+            summary = (issue.fields.summary[:55] + '..')
+        else:
+            summary = issue.fields.summary
+
+        t.add_row([issue.fields.issuetype.name,
+                  status,
+                  issue.key,
+                  summary]
+                  )
+    print t
 
 
 def open_link(link):
@@ -93,7 +116,8 @@ def ppp_report():
         'AND resolutiondate >= -7d '
         'ORDER BY resolutiondate ASC'
     )
-    print('\nIssues completed in the last seven days:\n')
+    total = len(last_seven_days)
+    print('\n%d issues completed in the last seven days:\n' % total)
     print_issues_summary(last_seven_days)
 
 
