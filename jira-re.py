@@ -52,10 +52,12 @@ def check_fixversion_exists(project, fixversion):
 
 
 def print_issue_summary(issue):
-    print issue.fields.issuetype.name \
+    summary = issue.fields.issuetype.name \
         + '\t' + issue.fields.status.name \
         + '\t' + issue.key \
         + '\t: ' + issue.fields.summary
+    summary = (summary[:80] + '..') if len(summary) > 80 else summary
+    print(summary)
 
 
 def print_issues_summary(issues):
