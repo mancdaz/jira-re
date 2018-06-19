@@ -84,7 +84,15 @@ def ppp_report():
     print('  - %s additional non-release items completed '
           '(re-related or non-release themed bugs)'
           % len(non_release_items))
-    open_link('https://rpc-openstack.atlassian.net/issues/?filter=14161')
+#    open_link('https://rpc-openstack.atlassian.net/issues/?filter=14161')
+    last_seven_days = jira.search_issues(
+        '(project = re OR labels = re-related) '
+        'AND type in (bug, task, sub-task) '
+        'AND resolutiondate >= -7d '
+        'ORDER BY resolutiondate ASC'
+    )
+    print('\nIssues completed in the last seven days:\n')
+    print_issues_summary(last_seven_days)
 
 
 def normal_report():
@@ -110,6 +118,7 @@ def normal_report():
     print
     print 'Total items completed in release period:\t %s' \
         % (len(completed_items) + len(non_release_items))
+
 
 ######################
 #        main        #
