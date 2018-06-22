@@ -189,6 +189,7 @@ non_release_items = jira.search_issues(
     'AND type in (bug, task, sub-task) '
     'AND resolutiondate >= %s '
     'AND StatusCategory = Done '
+    'AND resolution not in ("Won\'t Fix", "Won\'t Do", Duplicate) '
     'ORDER BY resolved ASC'
     % (PROJECT, CURRENT_RELEASE, PLAN_DATE))
 
