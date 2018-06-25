@@ -114,6 +114,7 @@ def ppp_report():
         '(project = re OR labels = re-related) '
         'AND type in (bug, task, sub-task) '
         'AND resolutiondate >= -7d '
+        'AND resolution not in ("Won\'t Fix", "Won\'t Do", Duplicate) '
         'ORDER BY resolutiondate ASC'
     )
     total = len(last_seven_days)
