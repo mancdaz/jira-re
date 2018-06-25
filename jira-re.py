@@ -5,7 +5,6 @@ from datetime import date
 from collections import Counter
 import argparse
 import os
-import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--release', action='store', dest='release')
@@ -19,18 +18,15 @@ parser.add_argument('--passwd', default=os.environ.get('JIRA_PASS', None))
 
 
 def get_date():
-    now = datetime.datetime.now()
-    month = str(now.month).zfill(2)
-    year = str(now.year)
-    day = str(now.day).zfill(2)
-    return day, month, year
+    year, month, day = str(date.today()).split('-')
+    return year, month, day
 
 
 def get_release():
     if args.release:
         return args.release
     else:
-        day, month, year = get_date()
+        year, month, day = get_date()
         month = str(int(month) + 1).zfill(2)
         return 'RE-%s.%s' % (year, month)
 
@@ -39,7 +35,7 @@ def get_plan_date():
     if args.plan:
         return args.plan
     else:
-        day, month, year = get_date()
+        year, month, day = get_date()
         return '%s-%s-%s' % (year, month, '01')
 
 
@@ -123,7 +119,8 @@ def ppp_report():
 
 
 def normal_report():
-    print 'Date: %s' % str(date.today())
+    print 'Date: %s-%s-%s' % get_date()
+    #print 'Date: %s' % str(date.today())
     print 'Planning Date: %s' % PLAN_DATE
     print 'Current Release: %s' % CURRENT_RELEASE
     print 'Total (non-epic) items in release:\t\t %s' \
