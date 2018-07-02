@@ -31,6 +31,21 @@ def get_release():
         return 'RE-%s.%s' % (year, month)
 
 
+def get_jira_fieldname(field):
+    fields = jira.fields()
+    for i in fields:
+        if i['name'] == field:
+            return i['key']
+
+
+
+def get_epic_link(issue):
+    iss = jira.issue(issue)
+    epic_field_name = get_jira_fieldname('Epic Link')
+    return iss.raw['fields'][epic_field_name]
+
+
+
 def get_plan_date():
     if args.plan:
         return args.plan
@@ -63,10 +78,12 @@ def print_issue_summary(issue):
 
 def print_issues_summary(issues):
     from prettytable import PrettyTable
-    t = PrettyTable(['Type', 'Status', 'Key', 'Description'])
+    t = PrettyTable(['Type', 'Status', 'Key', 'Epic', 'Description'])
     t.align = 'l'
 
     for issue in issues:
+        epic_link = get_epic_link(issue)
+
         if issue.fields.status.name == 'Needs Review (doing)':
             status = 'Review'
         else:
@@ -80,6 +97,7 @@ def print_issues_summary(issues):
         t.add_row([issue.fields.issuetype.name,
                   status,
                   issue.key,
+                  epic_link,
                   summary]
                   )
     print t
