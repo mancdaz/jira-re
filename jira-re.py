@@ -78,11 +78,12 @@ def print_issue_summary(issue):
 
 def print_issues_summary(issues):
     from prettytable import PrettyTable
-    t = PrettyTable(['Type', 'Status', 'Key', 'Epic', 'Description'])
+#    t = PrettyTable(['Type', 'Status', 'Key', 'Epic', 'Description'])
+    t = PrettyTable(['Type', 'Status', 'Key', 'Description'])
     t.align = 'l'
 
     for issue in issues:
-        epic_link = get_epic_link(issue)
+#        epic_link = get_epic_link(issue)
 
         if issue.fields.status.name == 'Needs Review (doing)':
             status = 'Review'
@@ -97,7 +98,7 @@ def print_issues_summary(issues):
         t.add_row([issue.fields.issuetype.name,
                   status,
                   issue.key,
-                  epic_link,
+#                  epic_link,
                   summary]
                   )
     print t
@@ -197,7 +198,7 @@ completed_items = jira.search_issues(
     'fixVersion = %s and type in (bug,task) and status = Finished'
     % CURRENT_RELEASE)
 remaining_items = jira.search_issues(
-    'fixVersion = %s and type in (bug,task) and status != Finished'
+    'fixVersion = %s and type in (bug,task) and status != Finished ORDER BY  RANK ASC'
     % CURRENT_RELEASE)
 non_release_items = jira.search_issues(
     '((Project = %s AND (fixVersion != %s OR fixVersion = null) ) '
