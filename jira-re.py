@@ -10,7 +10,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--release', action='store', dest='release')
 parser.add_argument('-i', '--issue', action='store', dest='issue')
 parser.add_argument('-pd', '--plan-date', action='store', dest='plan')
-parser.add_argument('-p', '--project', action='store', dest='project')
+parser.add_argument('-p', '--project', action='store', dest='project',
+                    default='RE')
 parser.add_argument('-d', '--debug', action='store_true', dest='debug')
 parser.add_argument('-ppp', action='store_true', dest='ppp')
 parser.add_argument('--user', default=os.environ.get('JIRA_USER', None))
@@ -38,12 +39,10 @@ def get_jira_fieldname(field):
             return i['key']
 
 
-
 def get_epic_link(issue):
     iss = jira.issue(issue)
     epic_field_name = get_jira_fieldname('Epic Link')
     return iss.raw['fields'][epic_field_name]
-
 
 
 def get_plan_date():
@@ -78,12 +77,12 @@ def print_issue_summary(issue):
 
 def print_issues_summary(issues):
     from prettytable import PrettyTable
-#    t = PrettyTable(['Type', 'Status', 'Key', 'Epic', 'Description'])
+    # t = PrettyTable(['Type', 'Status', 'Key', 'Epic', 'Description'])
     t = PrettyTable(['Type', 'Status', 'Key', 'Description'])
     t.align = 'l'
 
     for issue in issues:
-#        epic_link = get_epic_link(issue)
+        # epic_link = get_epic_link(issue)
 
         if issue.fields.status.name == 'Needs Review (doing)':
             status = 'Review'
@@ -98,7 +97,7 @@ def print_issues_summary(issues):
         t.add_row([issue.fields.issuetype.name,
                   status,
                   issue.key,
-#                  epic_link,
+                  # epic_link,
                   summary]
                   )
     print t
@@ -139,7 +138,6 @@ def ppp_report():
 
 def normal_report():
     print 'Date: %s-%s-%s' % get_date()
-    #print 'Date: %s' % str(date.today())
     print 'Planning Date: %s' % PLAN_DATE
     print 'Current Release: %s' % CURRENT_RELEASE
     print 'Total (non-epic) items in release:\t\t %s' \
@@ -173,7 +171,8 @@ USER = args.user
 PASS = args.passwd
 PLAN_DATE = get_plan_date()
 CURRENT_RELEASE = get_release()
-PROJECT = args.project if args.project else 'RE'
+# PROJECT = args.project if args.project else 'RE'
+PROJECT = args.project
 DEBUG = args.debug
 
 jira = JIRA('https://rpc-openstack.atlassian.net', basic_auth=(USER, PASS))
@@ -198,7 +197,8 @@ completed_items = jira.search_issues(
     'fixVersion = %s and type in (bug,task) and status = Finished'
     % CURRENT_RELEASE)
 remaining_items = jira.search_issues(
-    'fixVersion = %s and type in (bug,task) and status != Finished ORDER BY  RANK ASC'
+    'fixVersion = %s and type in (bug,task)'
+    'AND status != Finished ORDER BY  RANK ASC'
     % CURRENT_RELEASE)
 non_release_items = jira.search_issues(
     '((Project = %s AND (fixVersion != %s OR fixVersion = null) ) '
