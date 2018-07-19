@@ -77,7 +77,7 @@ def print_issue_summary(issue):
 def print_issues_summary(issues):
     from prettytable import PrettyTable
     t = PrettyTable(['Type', 'Status', 'Key', 'Epic', 'Description'])
-    #t = PrettyTable(['Type', 'Status', 'Key', 'Description'])
+    # t = PrettyTable(['Type', 'Status', 'Key', 'Description'])
     t.align = 'l'
     epic_link_fieldname = get_jira_fieldname('Epic Link')
 
@@ -186,26 +186,42 @@ print 'Querying project %s for issues in release %s...' \
 check_fixversion_exists(PROJECT, CURRENT_RELEASE)
 
 initial_items = jira.search_issues(
-    'fixVersion = %s and created <= %s and type in (bug,task)'
+    'fixVersion = %s '
+    'AND  created <= %s '
+    'AND type in (bug,task) '
     % (CURRENT_RELEASE, PLAN_DATE))
+
 addl_items = jira.search_issues(
-    'fixVersion = %s and created > %s and type in (bug,task)'
+    'fixVersion = %s '
+    'AND created > %s '
+    'AND type in (bug,task) '
     % (CURRENT_RELEASE, PLAN_DATE))
+
 total_items_in_release = initial_items + addl_items
+
 completed_items = jira.search_issues(
-    'fixVersion = %s and type in (bug,task) and status = Finished'
+    'fixVersion = %s '
+    'AND type in (bug,task) '
+    'AND StatusCategory = Done '
+    'AND resolution = "Done"'
     % CURRENT_RELEASE)
+
 remaining_items = jira.search_issues(
-    'fixVersion = %s and type in (bug,task)'
-    'AND status != Finished ORDER BY  RANK ASC'
+    'fixVersion = %s '
+    'AND type in (bug,task) '
+    'AND status != Finished '
+    'ORDER BY  RANK ASC '
     % CURRENT_RELEASE)
+
 non_release_items = jira.search_issues(
-    '((Project = %s AND (fixVersion != %s OR fixVersion = null) ) '
-    'OR (labels = re-related)) '
+    '('
+    '(Project = %s AND (fixVersion != %s OR fixVersion = null)) '
+    'OR (labels = re-related) '
+    ')'
     'AND type in (bug, task, sub-task) '
     'AND resolutiondate >= %s '
     'AND StatusCategory = Done '
-    'AND resolution not in ("Won\'t Fix", "Won\'t Do", Duplicate) '
+    'AND resolution = "Done"'
     'ORDER BY resolved ASC'
     % (PROJECT, CURRENT_RELEASE, PLAN_DATE))
 
