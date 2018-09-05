@@ -60,24 +60,17 @@ def check_fixversion_exists(project, fixversion):
         exit(1)
 
 
-def print_issue_summary(issue):
-    summary = issue.fields.issuetype.name \
-        + '\t' + issue.fields.status.name \
-        + '\t' + issue.key \
-        + '\t: ' + issue.fields.summary
-    summary = (summary[:80] + '..') if len(summary) > 80 else summary
-    print(summary)
+def get_issue_fixversions(issue):
+    fixVersions = []
+    for fixVersion in issue.fields.fixVersions:
+        fixVersions.append(fixVersion.name)
 
+    return fixVersions
 
-# def print_issues_summary(issues):
-#     for issue in issues:
-#         print_issue_summary(issue)
-#     print
 
 def print_issues_summary(issues):
     from prettytable import PrettyTable
-    t = PrettyTable(['Type', 'Status', 'Key', 'Epic', 'Description'])
-    # t = PrettyTable(['Type', 'Status', 'Key', 'Description'])
+    t = PrettyTable(['Type', 'fix', 'Status', 'Key', 'Epic', 'Description'])
     t.align = 'l'
     epic_link_fieldname = get_jira_fieldname('Epic Link')
 
@@ -94,7 +87,10 @@ def print_issues_summary(issues):
         else:
             summary = issue.fields.summary
 
+        fixVersions = ','.join(get_issue_fixversions(issue))
+
         t.add_row([issue.fields.issuetype.name,
+                   fixVersions,
                    status,
                    issue.key,
                    epic_link,
