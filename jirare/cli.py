@@ -6,16 +6,21 @@ from collections import Counter
 import argparse
 import os
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-r', '--release', action='store', dest='release')
-parser.add_argument('-i', '--issue', action='store', dest='issue')
-parser.add_argument('-pd', '--plan-date', action='store', dest='plan')
-parser.add_argument('-p', '--project', action='store', dest='project',
-                    default='RE')
-parser.add_argument('-d', '--debug', action='store_true', dest='debug')
-parser.add_argument('-ppp', action='store_true', dest='ppp')
-parser.add_argument('--user', default=os.environ.get('JIRA_USER', None))
-parser.add_argument('--passwd', default=os.environ.get('JIRA_PASS', None))
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-r', '--release', action='store', dest='release')
+    parser.add_argument('-i', '--issue', action='store', dest='issue')
+    parser.add_argument('-pd', '--plan-date', action='store', dest='plan')
+    parser.add_argument('-p', '--project', action='store', dest='project',
+                        default='RE')
+    parser.add_argument('-d', '--debug', action='store_true', dest='debug')
+    parser.add_argument('-ppp', action='store_true', dest='ppp')
+    parser.add_argument('--user', default=os.environ.get('JIRA_USER', None))
+    parser.add_argument('--passwd', default=os.environ.get('JIRA_PASS', None))
+
+    args = parser.parse_args()
+    return args
 
 
 def get_date():
@@ -52,7 +57,7 @@ def get_plan_date():
         return '%s-%s-%s' % (year, month, '01')
 
 
-def check_fixversion_exists(project, fixversion):
+def check_fixversion_exists(project, fixversion, jira):
     fixversions = [version.name for version in jira.project_versions(project)]
     if fixversion not in fixversions:
         print('Warning: Release %s was not found in project %s '
@@ -157,11 +162,7 @@ def normal_report():
           % (len(completed_items) + len(non_release_items)))
 
 
-######################
-#        main        #
-######################
-
-args = parser.parse_args()
+args = get_args()
 
 USER = args.user
 PASS = args.passwd
@@ -172,15 +173,6 @@ PROJECT = args.project
 DEBUG = args.debug
 
 jira = JIRA('https://rpc-openstack.atlassian.net', basic_auth=(USER, PASS))
-
-if args.issue:
-    open_issue(args.issue)
-    exit(0)
-
-print('Querying project %s for issues in release %s...'
-      % (PROJECT, CURRENT_RELEASE))
-
-check_fixversion_exists(PROJECT, CURRENT_RELEASE)
 
 initial_items = jira.search_issues(
     'fixVersion = %s '
@@ -228,8 +220,28 @@ backlog = status_count['Backlog']
 remaining = sum(status_count.values()) - backlog
 status_string = ', '.join([k + ': ' + str(v) for k, v in status_count.items()])
 
-if args.ppp:
-    ppp_report()
+######################
+#        main        #
+######################
 
-else:
-    normal_report()
+
+def main():
+
+    if args.issue:
+        open_issue(args.issue)
+        exit(0)
+
+    print('Querying project %s for issues in release %s...'
+          % (PROJECT, CURRENT_RELEASE))
+
+    check_fixversion_exists(PROJECT, CURRENT_RELEASE, jira)
+
+    if args.ppp:
+        ppp_report()
+
+    else:
+        normal_report()
+
+
+if __name__ == "__main__":
+    main()
