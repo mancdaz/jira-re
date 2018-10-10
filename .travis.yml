@@ -5,3 +5,4 @@ python:
 script:
   - flake8 .
   - python setup.py install
+  - rej --help

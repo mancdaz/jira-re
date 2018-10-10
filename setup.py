@@ -15,6 +15,7 @@ setup(
     entry_points={
         'console_scripts': [
             'jirare=jirare.cli:main',
+            'rej=jirare.cli:main',
         ],
     },
 )
