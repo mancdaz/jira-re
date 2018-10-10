@@ -135,6 +135,9 @@ def ppp_report():
     total = len(last_seven_days)
     print('\n%d issues completed in the last seven days:\n' % total)
     print_issues_summary(last_seven_days)
+    print('Remaining release items:\t\t\t %s (%s)'
+          % (len(remaining_items), status_string))
+    print_issues_summary(remaining_items)
 
 
 def normal_report():
@@ -199,7 +202,7 @@ remaining_items = jira.search_issues(
     'fixVersion = %s '
     'AND type in (bug,task) '
     'AND status != Finished '
-    'ORDER BY  RANK ASC '
+    'ORDER BY STATUS ASC '
     % CURRENT_RELEASE)
 
 non_release_items = jira.search_issues(
