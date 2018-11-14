@@ -137,7 +137,8 @@ def ppp_report():
     print_issues_summary(last_seven_days)
     print('Remaining release items:\t\t\t %s (%s)'
           % (len(remaining_items), status_string))
-    print_issues_summary(remaining_items)
+    if DEBUG:
+        print_issues_summary(remaining_items)
 
 
 def normal_report():
