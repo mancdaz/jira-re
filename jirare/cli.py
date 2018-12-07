@@ -23,18 +23,13 @@ def get_args():
     return args
 
 
-def get_date():
-    year, month, day = str(date.today()).split('-')
-    return year, month, day
-
-
 def get_release():
     if args.release:
         return args.release
-    else:
-        year, month, day = get_date()
-        month = str(int(month) + 1).zfill(2)
-        return 'RE-%s.%s' % (year, month)
+    t = date.today()
+    if t.month == 12:
+        t = t.replace(month=1, year=t.year + 1)
+    return t.strftime("RE-%Y.%m")
 
 
 def get_jira_fieldname(field):
@@ -53,8 +48,8 @@ def get_plan_date():
     if args.plan:
         return args.plan
     else:
-        year, month, day = get_date()
-        return '%s-%s-%s' % (year, month, '01')
+        t = date.today()
+        return t.strftime("%Y-%m-01")
 
 
 def check_fixversion_exists(project, fixversion, jira):
@@ -142,7 +137,6 @@ def ppp_report():
 
 
 def normal_report():
-    print('Date: %s-%s-%s' % get_date())
     print('Planning Date: %s' % PLAN_DATE)
     print('Current Release: %s' % CURRENT_RELEASE)
     print('Total (non-epic) items in release:\t\t %s'
