@@ -28,9 +28,9 @@ def get_release():
         return args.release
     t = date.today()
     if t.month == 12:
-        t = t.replace(month = 1, year = t.year + 1)
+        t = t.replace(month=1, year=t.year + 1)
     else:
-        t = t.replace(month = t.month + 1)
+        t = t.replace(month=t.month + 1)
     return t.strftime("RE-%Y.%m")
 
 
