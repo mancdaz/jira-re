@@ -25,13 +25,17 @@ def get_args():
 
 def get_release():
     if args.release:
-        return args.release
-    t = date.today()
-    if t.month == 12:
-        t = t.replace(month=1, year=t.year + 1)
+        release = args.release
     else:
-        t = t.replace(month=t.month + 1)
-    return t.strftime("RE-%Y.%m")
+        t = date.today()
+        if t.month == 12:
+            month = 1
+            year = t.year + 1
+        else:
+            year = t.year
+            month = t.month + 1
+        release = "RE-%d.%02d" % (year, month)
+    return release
 
 
 def get_jira_fieldname(field):
@@ -168,7 +172,6 @@ USER = args.user
 PASS = args.passwd
 PLAN_DATE = get_plan_date()
 CURRENT_RELEASE = get_release()
-# PROJECT = args.project if args.project else 'RE'
 PROJECT = args.project
 DEBUG = args.debug
 
