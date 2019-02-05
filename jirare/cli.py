@@ -76,7 +76,15 @@ def get_issue_fixversions(issue):
 
 def print_issues_summary(issues):
     from prettytable import PrettyTable
-    t = PrettyTable(['Type', 'fix', 'Status', 'Key', 'Epic', 'Description'])
+    t = PrettyTable([
+        'Type',
+        'fix',
+        'Status',
+        'Resolution',
+        'Key',
+        'Epic',
+        'Description'])
+
     t.align = 'l'
     epic_link_fieldname = get_jira_fieldname('Epic Link')
 
@@ -95,9 +103,15 @@ def print_issues_summary(issues):
 
         fixVersions = ','.join(get_issue_fixversions(issue))
 
+        try:
+            resolution = issue.fields.resolution.name
+        except AttributeError:
+            resolution = 'Unresolved'
+
         t.add_row([issue.fields.issuetype.name,
                    fixVersions,
                    status,
+                   resolution,
                    issue.key,
                    epic_link,
                    summary])
@@ -195,7 +209,7 @@ completed_items = jira.search_issues(
     'fixVersion = %s '
     'AND type in (bug,task) '
     'AND StatusCategory = Done '
-    'AND resolution = "Done"'
+    'ORDER BY resolution ASC '
     % CURRENT_RELEASE)
 
 remaining_items = jira.search_issues(
